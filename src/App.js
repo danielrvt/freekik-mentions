@@ -24,33 +24,36 @@ class MentionInput extends Component {
     constructor() {
         super();
         this.state = {
-            txt: "hola @arturo cómo estás?",
-            mentions: ["@arturo"]
+            txt: "hola @daniel cómo estás?",
+            mentions: ["@daniel"]
         };
     }
 
     update(e) {
         let mentionsFromText = e.target.value.match(/@\w+/g) || [];
+        
         // Verify if a new mention is being written.
-
         if (mentionsFromText.length > this.state.mentions.length) {
-            console.log("Agregando mention, dar sugerencias");
+            // Adding a mention, must display suggestions.
+            console.log("Agregando mention, dar sugerencias");            
         } else {            
-            console.log("Agregando texto o borrando mention")
+            // Removing mention or just adding some text.
             var replaceText = true;
-            // Comparar los mentions con los matchs, intersectar los dos conjuntos.
+            
+            // Intersect the mentions in the text with the ones in the state.
             this.state.mentions.forEach(m => {
+                // This means the user is removing the mention m from the state and the text.
                 if (!mentionsFromText.includes(m)) {
                     replaceText = false;
-                    // Eliminar mention del estado y del texto                    
-                    console.log(this.state.mentions.filter((m) => { mentionsFromText.includes(m) }));
+                   
                     this.setState({
                         txt: this.state.txt.replace(m, ''),
                         mentions: this.state.mentions.filter((m) => { mentionsFromText.includes(m) })
                     })
                 }
             })
-            console.log(this.state.mentions);               
+            
+            // If the input text was updated, update the state.
             if (replaceText) this.setState({txt: e.target.value});
         }
     }
