@@ -8,10 +8,10 @@ class App extends Component {
             <div className="App">
                 <header className= "App-header">
                     <img src = { logo } className="App-logo" alt="logo" />
-                    <h1 className="App-title"> Welcome to React</h1>  
+                    <h1 className="App-title"> Mentions Component </h1>  
                 </header> 
                 <p className="App-intro">
-                    To get started, edit < code > src / App.js </code> and save to reload. 
+                    Start typing in the textbox, select a suggestion whenever you write @ + a letter. 
                 </p>
                 <MentionInput> </MentionInput>
             </div>
@@ -24,7 +24,7 @@ class MentionInput extends Component {
     constructor() {
         super();
         this.state = {
-            txt: "hola @daniel cómo estás?",
+            txt: "hola @daniel cómo estás?", //Dummy text and mentions
             mentions: ["@daniel"],
             suggestions: []
         };
@@ -37,7 +37,7 @@ class MentionInput extends Component {
         
         // Verify if a new mention is being written.
         if (mentionsFromText.length > this.state.mentions.length) {
-            console.log("caso add", mentionsFromText, this.state.mentions)
+    
             // Adding a mention, must display suggestions.
             // TODO: Get suggestions from somewhere...
             
@@ -56,10 +56,6 @@ class MentionInput extends Component {
                 //This means the user is removing the mention m from the state and the text.
                 if (!mentionsFromText.includes(m)) {
                     replaceText = false;
-                   
-                    console.log("REMOVE", this.state.mentions.filter((m) => { 
-                       return mentionsFromText.includes(m) 
-                    }))
                     
                     this.setState({
                         txt: this.state.txt.replace(m, ''),
@@ -74,20 +70,17 @@ class MentionInput extends Component {
     }
 
     clickHandler(e) {
-        console.log("click", e.target.innerHTML, this.textInput.selectionStart)
         let mention = "@" + e.target.innerHTML;
 
         // Add selected mention to the state and reset suggestions.
-        this.setState({mentions: this.state.mentions.concat([mention])});        
-        this.setState({suggestions: []})
+        this.setState({mentions: this.state.mentions.concat([mention]), suggestions: []});        
 
         // Update the text to show the selected mention
         let txt = this.state.txt;
         let updatedText = txt.slice(0, this.textInput.selectionStart) + 
             e.target.innerHTML + ' ' + txt.slice(this.textInput.selectionStart + 1, txt.length);
+        
         this.setState({txt: updatedText});
-
-        this.setState({suggestions: []});
         this.textInput.focus();
     }
 
