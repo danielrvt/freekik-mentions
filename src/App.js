@@ -26,12 +26,15 @@ class MentionInput extends Component {
         this.state = {
             txt: "hola @daniel cómo estás?", //Dummy text and mentions
             mentions: ["@daniel"],
-            suggestions: []
+            suggestions: [],
+            selectionEnd: 0
         };
         this.textInput = null;
     }
 
     update(e) {
+        const selectionEnd = this.textInput.selectionEnd;
+
         //Gets the @\w+ from the text, to see which mention is being written.
         let mentionsFromText = e.target.value.match(/@\w+/g) || [];
         
@@ -39,12 +42,12 @@ class MentionInput extends Component {
         if (mentionsFromText.length > this.state.mentions.length) {
     
             // Adding a mention, must display suggestions.
-            // TODO: Get suggestions from somewhere...
+            // TODO: Get suggestions from somewhere starting with the letter next to @.
             
             let suggestions = ["daniel", "arturo", "daniela"];
 
             // Add selected suggestion to the mentions array.
-            this.setState({suggestions: suggestions})
+            this.setState({suggestions: suggestions, selectionEnd: this.textInput.selectionEnd})
 
         } else {            
             // Removing mention or just adding some text.
@@ -70,18 +73,20 @@ class MentionInput extends Component {
     }
 
     clickHandler(e) {
-        let mention = "@" + e.target.innerHTML;
+        let mention = "@" + e.target.innerHTML.trim();
 
         // Add selected mention to the state and reset suggestions.
         this.setState({mentions: this.state.mentions.concat([mention]), suggestions: []});        
 
         // Update the text to show the selected mention
         let txt = this.state.txt;
-        let updatedText = txt.slice(0, this.textInput.selectionStart) + 
-            e.target.innerHTML + ' ' + txt.slice(this.textInput.selectionStart + 1, txt.length);
         
-        this.setState({txt: updatedText});
+        let updatedText = txt.slice(0, this.state.selectionEnd - 1) + 
+             e.target.innerHTML.trim() + ' ' + txt.slice(this.state.selectionEnd, txt.length);
+
+        this.setState({txt: updatedText, selectionEnd: this.state.selectionEnd + e.target.innerHTML});
         this.textInput.focus();
+        this.textInput.selectionEnd = this.state.selectionEnd;       
     }
 
     render () {        
