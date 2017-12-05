@@ -34,7 +34,6 @@ class MentionInput extends Component {
 
     update(e) {
         const selectionEnd = this.textInput.selectionEnd;
-        
         this.setState({txt: e.target.value, suggestions: []});
 
         //Gets the @\w+ from the text, to see which mention is being written.
@@ -42,26 +41,24 @@ class MentionInput extends Component {
         
         // Verify if a new mention is being written.
         if (mentionsFromText.length > this.state.mentions.length) {
-    
+
             // Adding a mention, must display suggestions.
-            // TODO: Get suggestions from somewhere starting with the letter next to @.
-            // TODO: Get word at cursor position
+            // Get suggestions from somewhere starting with the letter next to @.
             var mentionBeingWritten = (this.textInput.value.substr(0, this.textInput.selectionEnd)
             .match(/@\w+/g) || [])
             .reverse()[0]
             .substr(1);
             
-            // TODO: Call Github's API
+            // Call Github's API
             console.log(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
-            // fetch(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
-            //     .then(resp => resp.json())
-            //     .then(jsonResp => console.log("ASDF", jsonResp))
-            // https://api.github.com/search/users?q={e.target.value.substr(1)}+in%3Alogin&type=Users
-            
-            let suggestions = ["daniel", "arturo", "daniela"];
+            fetch(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
+                .then(resp => resp.json())
+                .then(jsonResp => {                    
+                    let suggestions = jsonResp.items.map(user => user.login)
 
-            // Add selected suggestion to the mentions array.
-            this.setState({suggestions: suggestions, selectionEnd: this.textInput.selectionEnd})
+                    // Add selected suggestion to the mentions array.
+                    this.setState({suggestions: suggestions, selectionEnd: this.textInput.selectionEnd})
+                })
         
         } else {            
             // Removing mention or just adding some text.
