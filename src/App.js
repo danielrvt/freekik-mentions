@@ -46,13 +46,14 @@ class MentionInput extends Component {
             // Adding a mention, must display suggestions.
             // TODO: Get suggestions from somewhere starting with the letter next to @.
             // TODO: Get word at cursor position
-            var mentionBeingWritten = this.textInput.value.substr(selectionEnd).match(/@(\w+)/);
-            console.log("escribiendo", mentionBeingWritten);
-
+            var mentionBeingWritten = (this.textInput.value.substr(0, this.textInput.selectionEnd)
+            .match(/@\w+/g) || [])
+            .reverse()[0]
+            .substr(1);
+            
             // TODO: Call Github's API
-
-            console.log("https://api.github.com/search/users?q=${e.target.value.substr(1)}+in%3Alogin&type=Users")
-            // fetch("https://api.github.com/search/users?q=${e.target.value.substr(1)}+in%3Alogin&type=Users")
+            console.log(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
+            // fetch(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
             //     .then(resp => resp.json())
             //     .then(jsonResp => console.log("ASDF", jsonResp))
             // https://api.github.com/search/users?q={e.target.value.substr(1)}+in%3Alogin&type=Users
