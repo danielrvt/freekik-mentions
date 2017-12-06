@@ -1,5 +1,19 @@
 body {
   margin: 0;
-  padding: 0;
+  padding: 2rem;
   font-family: sans-serif;
+}
+
+textarea {
+  width: 100%;
+  font-size: 1rem;
+}
+
+li {
+  list-style: none;
+  /* line-height: 2rem; */
+  border-bottom: 1px solid lightgray;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: cornflowerblue
 }

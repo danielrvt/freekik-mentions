@@ -24,8 +24,10 @@ class MentionInput extends Component {
     constructor() {
         super();
         this.state = {
-            txt: "hola @daniel cómo estás?", //Dummy text and mentions
-            mentions: ["@daniel"],
+            // txt: "hola @daniel cómo estás?", //Dummy text and mentions
+            // mentions: ["@daniel"],
+            txt: "",
+            mentions: [],
             suggestions: [],
             selectionEnd: 0
         };
