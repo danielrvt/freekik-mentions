@@ -24,8 +24,10 @@ class MentionInput extends Component {
     constructor() {
         super();
         this.state = {
-            txt: "hola @daniel cómo estás?", //Dummy text and mentions
-            mentions: ["@daniel"],
+            // txt: "hola @daniel cómo estás?", //Dummy text and mentions
+            // mentions: ["@daniel"],
+            txt: "",
+            mentions: [],
             suggestions: [],
             selectionEnd: 0
         };
@@ -34,21 +36,32 @@ class MentionInput extends Component {
 
     update(e) {
         const selectionEnd = this.textInput.selectionEnd;
+        this.setState({txt: e.target.value, suggestions: []});
 
         //Gets the @\w+ from the text, to see which mention is being written.
-        let mentionsFromText = e.target.value.match(/@\w+/g) || [];
+        let mentionsFromText = e.target.value.match(/@\w+/g) || [];        
         
         // Verify if a new mention is being written.
         if (mentionsFromText.length > this.state.mentions.length) {
-    
+
             // Adding a mention, must display suggestions.
-            // TODO: Get suggestions from somewhere starting with the letter next to @.
+            // Get suggestions from somewhere starting with the letter next to @.
+            var mentionBeingWritten = (this.textInput.value.substr(0, this.textInput.selectionEnd)
+            .match(/@\w+/g) || [])
+            .reverse()[0]
+            .substr(1);
             
-            let suggestions = ["daniel", "arturo", "daniela"];
+            // Call Github's API
+            console.log(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
+            fetch(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
+                .then(resp => resp.json())
+                .then(jsonResp => {                    
+                    let suggestions = jsonResp.items.map(user => user.login)
 
-            // Add selected suggestion to the mentions array.
-            this.setState({suggestions: suggestions, selectionEnd: this.textInput.selectionEnd})
-
+                    // Add selected suggestion to the mentions array.
+                    this.setState({suggestions: suggestions, selectionEnd: this.textInput.selectionEnd})
+                })
+        
         } else {            
             // Removing mention or just adding some text.
             var replaceText = true;
@@ -80,9 +93,17 @@ class MentionInput extends Component {
 
         // Update the text to show the selected mention
         let txt = this.state.txt;
-        
-        let updatedText = txt.slice(0, this.state.selectionEnd - 1) + 
-             e.target.innerHTML.trim() + ' ' + txt.slice(this.state.selectionEnd, txt.length);
+
+        // Gets the length of the partial mention to replace it when the actual one is selected
+        let partialMentionsLength = (txt.substr(0, this.textInput.selectionEnd)
+        .match(/@\w+/g) || [])
+        .reverse()[0]
+        .substr(1)
+        .length
+
+        //To replace, the section between partialMentionsLength and selectionEnd
+         let updatedText = txt.slice(0, this.state.selectionEnd - partialMentionsLength) + 
+              e.target.innerHTML.trim() + ' ' + txt.slice(this.state.selectionEnd, txt.length);
 
         this.setState({txt: updatedText, selectionEnd: this.state.selectionEnd + e.target.innerHTML});
         this.textInput.focus();
