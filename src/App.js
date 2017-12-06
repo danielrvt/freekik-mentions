@@ -24,8 +24,6 @@ class MentionInput extends Component {
     constructor() {
         super();
         this.state = {
-            // txt: "hola @daniel cómo estás?", //Dummy text and mentions
-            // mentions: ["@daniel"],
             txt: "",
             mentions: [],
             suggestions: [],
@@ -55,7 +53,9 @@ class MentionInput extends Component {
             console.log(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
             fetch(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
                 .then(resp => resp.json())
-                .then(jsonResp => {                    
+                .then(jsonResp => {
+                    if (!jsonResp.items) return alert("Github's API Limit reached");
+
                     let suggestions = jsonResp.items.map(user => user.login)
 
                     // Add selected suggestion to the mentions array.
