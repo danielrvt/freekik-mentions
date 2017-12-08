@@ -1,8 +1,23 @@
+/**
+ * Repo (Full Code): https://github.com/danielrvt/freekik-mentions
+ */
+
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
+
+    // Gets the beginning of the users name and returns a set of suggestions objects {login, id}
+    getGithubUsernames (firstChars) {
+        return fetch(`https://api.github.com/search/users?q=${firstChars}+in%3Alogin&type=Users`)
+        .then(resp => resp.json())
+        .then(jsonResp => {
+            if (!jsonResp.items) {alert("Github's API Limit reached"); return [];}
+            return jsonResp.items.map(user => {return {id: user.id, login: user.login}});
+        })
+    }
+
     render() {
         return ( 
             <div className="App">
@@ -13,7 +28,7 @@ class App extends Component {
                 <p className="App-intro">
                     Start typing in the textbox, select a suggestion whenever you write @ + a letter. 
                 </p>
-                <MentionInput> </MentionInput>
+                <MentionInput datasource={this.getGithubUsernames}> </MentionInput>
             </div>
         );
         }
@@ -30,7 +45,7 @@ class MentionInput extends Component {
             selectionEnd: 0
         };
         this.textInput = null;
-    }
+    }    
 
     update(e) {
         const selectionEnd = this.textInput.selectionEnd;
@@ -49,19 +64,14 @@ class MentionInput extends Component {
             .reverse()[0]
             .substr(1);
             
-            // Call Github's API
-            console.log(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
-            fetch(`https://api.github.com/search/users?q=${mentionBeingWritten}+in%3Alogin&type=Users`)
-                .then(resp => resp.json())
-                .then(jsonResp => {
-                    if (!jsonResp.items) return alert("Github's API Limit reached");
-
-                    let suggestions = jsonResp.items.map(user => user.login)
-
-                    // Add selected suggestion to the mentions array.
-                    this.setState({suggestions: suggestions, selectionEnd: this.textInput.selectionEnd})
+            // Uses the datasource to get the suggestions
+            this.props.datasource(mentionBeingWritten)
+                .then(suggestions => {
+                    this.setState({
+                        suggestions: suggestions, 
+                        selectionEnd: this.textInput.selectionEnd
+                    })
                 })
-        
         } else {            
             // Removing mention or just adding some text.
             var replaceText = true;
@@ -129,7 +139,7 @@ class MentionInput extends Component {
 
 class SuggestionsList extends Component {
     render () {
-        const suggestions = this.props.suggestions.map(s => <Suggestion clickHandler={this.props.clickHandler} key={s}>{s}</Suggestion>);
+        const suggestions = this.props.suggestions.map(s => <Suggestion clickHandler={this.props.clickHandler} key={s.login}>{s.login}</Suggestion>);
 
         return <ul>
             {suggestions}
